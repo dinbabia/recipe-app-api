@@ -1,0 +1,21 @@
+---
+name: Checks # will appear in github actions
+
+on: [push] # trigger. run when there is a commit/push/changes
+
+jobs:
+  test-lint: # id of the job
+    name: Test and Lint # see in the github interface
+    runs-on: ubuntu-20.04 # os runner. you can check github actions website for more runners. docker/docker-compose is pre-installed here
+    steps:
+      - name: Login to Docker Hub # name of step will be seen in github action interface
+        uses: docker/login-action@v1 # use pre-made action provided in github action repos. you can create own or re-use actions
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }} # saved in github secrets
+          password: ${{ secrets.DOCKERHUB_TOKEN }} # saved in github secrets
+      - name: Checkout # checks code inside our github action job that we are running
+        uses: actions/checkout@v2
+      - name: Test
+        run: docker-compose run --rm app sh -c "python manage.py test"
+      - name: Lint
+        run: docker-compose run --rm app sh -c "flake8"
